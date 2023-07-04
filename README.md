@@ -82,7 +82,7 @@ In third terminal:
 
 ## Support Commands and Modes
 
-Following are the most commonly used supported commands. More commands can be found from server/commandCreater.py but the command usage isnt written here
+Following are the most commonly used supported commands. More commands can be found from server/commandCreator.py but the command usage isn't written here
 
 - START PANDA: Once ran, all valid commands are going to be published to ROS topic
 - STOP PANDA: Once ran, commands may get recognized but they wont get published
@@ -98,8 +98,12 @@ Following are the most commonly used supported commands. More commands can be fo
 - TOOL OPEN: Open tool
 - TOOL CLOSE: Close tool
 - TOOL ROTATE: Rotate tool by the step size
-- TOOL ROTATE BACK (May not run): Rotate tool in the opposite direction
-- TOOL [DISTANCE]: Move tool fingers by given distance
+- TOOL ROTATE BACK: Rotate tool in the opposite direction
+- TOOL [DISTANCE]: Move tool fingers by given distance (currently not available)
+
+- PICK [position name]: Move robot above the given position, open the gripper, move down to the position, close the gripper and move back up
+- PLACE [position name]: Move robot above the given position, move down to the position, open the gripper and move back up
+- STACK [position name] DISTANCE [distance]: Similar to PLACE, but the target position for placing the object is above the given position by the distance specified as [distance]
 
 
 In step:
