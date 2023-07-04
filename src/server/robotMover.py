@@ -71,6 +71,8 @@ class RobotMover(object):
 		self.recording_task_name = None
 		self.saved_positions = tfh.load_position()
 		self.saved_tasks = tfh.load_task()
+
+		self.pick_approach_height = 0.2
 		
 		
 	def move_gripper_home(self):
@@ -103,6 +105,10 @@ class RobotMover(object):
 			self.move_group.execute(plan, wait=True)
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
+
+	def move_robot_to_waypoints(self, waypoints):
+		(plan, fraction) = self.move_group.compute_cartesian_path(waypoints, 0.01, 0.0)  # jump_threshold
+		self.move_group.execute(plan, wait=True)
             
 			
 	def move_robot_cartesian(self, direction, stepSize):
@@ -167,6 +173,50 @@ class RobotMover(object):
 			rospy.loginfo("Gripper rotated. Joint 7 value: " + value2decimals + ". Max: 2.90, Min: -2.90.")
 			print(joint_goal[6])
 			self.move_group.go(joint_goal, wait=True)
+
+	def pick_object(self, position):
+		if position in self.saved_positions.keys():
+			target = copy.deepcopy(self.saved_positions[position])
+			target_approach = copy.deepcopy(target)
+			target_approach.position.z += self.pick_approach_height
+			self.open_gripper()
+			self.move_robot_to_waypoints([target_approach])
+			self.move_robot_to_waypoints([target])
+			self.close_gripper()
+			self.move_robot_to_waypoints([target_approach])
+
+			rospy.loginfo("Robot picked object at position " + position)
+		else:
+			rospy.loginfo("Position " + position + " not saved.")
+
+	def place_object(self, position):
+		if position in self.saved_positions.keys():
+			target = copy.deepcopy(self.saved_positions[position])
+			target_approach = copy.deepcopy(target)
+			target_approach.position.z += self.pick_approach_height
+			self.move_robot_to_waypoints([target_approach])
+			self.move_robot_to_waypoints([target])
+			self.open_gripper()
+			self.move_robot_to_waypoints([target_approach])
+
+			rospy.loginfo("Robot placed object at position " + position)
+		else:
+			rospy.loginfo("Position " + position + " not saved.")
+
+	def stack_object(self, position, distance):
+		if position in self.saved_positions.keys():
+			target = copy.deepcopy(self.saved_positions[position])
+			target.position.z += distance
+			target_approach = copy.deepcopy(target)
+			target_approach.position.z += self.pick_approach_height
+			self.move_robot_to_waypoints([target_approach])
+			self.move_robot_to_waypoints([target])
+			self.open_gripper()
+			self.move_robot_to_waypoints([target_approach])
+
+			rospy.loginfo("Robot stacked object at position " + position + " at a height of " + str(distance) + " m")
+		else:
+			rospy.loginfo("Position " + position + " not saved.")
         
         
 	def handle_received_command(self, command):
@@ -345,6 +395,32 @@ class RobotMover(object):
 			else:
 				rospy.loginfo("Not enough arguments, expected REMOVE POSITION [position name]")
 			
+		#_________________PICK AND PLACE_________________________
+		elif cmd[0] == 'PICK':
+			if len(cmd) > 1:
+				if cmd[1] == 'POSITION':
+					self.pick_object(cmd[2])
+				self.pick_object(cmd[1])
+			else:
+				rospy.loginfo("Not enough arguments, expected PICK [position name]")
+
+		elif cmd[0] == 'PLACE':
+			if len(cmd) > 1:
+				if cmd[1] == 'POSITION':
+					self.place_object(cmd[2])
+				self.place_object(cmd[1])
+			else:
+				rospy.loginfo("Not enough arguments, expected PLACE [position name]")
+
+		elif cmd[0] == 'STACK':
+			if len(cmd) > 2:
+				if cmd[1] == 'POSITION':
+					height = get_number(cmd[3:]) / 1000
+					self.stack_object(cmd[2], distance=height)
+				height = get_number(cmd[2:]) / 1000
+				self.stack_object(cmd[1], distance=height)
+			else:
+				rospy.loginfo("Not enough arguments, expected STACK [position name] [distance]")
 			
 		#___________________TASK RECORDINGS______________________
 		elif cmd[0] == 'RECORD':

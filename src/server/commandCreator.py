@@ -73,7 +73,13 @@ class CommandCreator(object):
             'spot' : 'SPOT',
             'other' : 'OTHER',
             'opposite' : 'OPPOSITE', 
-            'counter' : 'COUNTER'
+            'counter' : 'COUNTER',
+            'pick' : 'PICK',
+            'big' : 'PICK',
+            'baek' : 'PICK',
+            'place' : 'PLACE',
+            'police' : 'PLACE',
+            'stack' : 'STACK'
         }
 
 
@@ -253,6 +259,40 @@ class CommandCreator(object):
         elif command == "POSITION" or command == "SPOT":
             position_name = self.get_name(words)
             return ["POSITION", position_name]
+        
+        #___________________PICK, PLACE, STACK_________________________
+        elif command == "PICK":
+            position_name = self.get_name(words)
+            return ["PICK", position_name]
+        
+        elif command == "PLACE":
+            position_name = self.get_name(words)
+            return ["PLACE", position_name]
+        
+        elif command == "STACK":
+            if len(words) < 3:
+                return None
+            index = 0
+            distance_command_found = False
+            name_words = []
+            distance_words = []
+            for word in words:
+                distance_command = self.all_words_lookup_table.get(word, '')
+                if distance_command not in ['DISTANCE']:
+                    index += 1
+                    continue
+                else:
+                    distance_command_found = True
+                    name_words = words[0:index]
+                    distance_words = words[(index+1):]
+                    break
+            if not distance_command_found:
+                print('Invalid ' + command + ' command. Correct form: STACK [position name] DISTANCE [distance]')
+                return None
+            else:
+                position_name = self.get_name(name_words)
+                distance = self.get_number(distance_words)
+                return ['STACK', position_name, distance]
 
 
         elif type(command) == str:
