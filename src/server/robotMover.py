@@ -134,11 +134,13 @@ class RobotMover(object):
 		(plan, fraction) = self.move_group.compute_cartesian_path(waypoints, 0.01, 0.0)  # jump_threshold
 		self.move_group.execute(plan, wait=True)
         
-	def open_gripper(self):
+	def open_gripper(self, wait=False):
 		movegoal = MoveGoal()
 		movegoal.width = 0.08
 		movegoal.speed = 0.05
 		self.move_action_client.send_goal(movegoal)
+		if wait:
+			self.move_action_client.wait_for_result()
 
 	def set_gripper_distance(self, distance):
 		movegoal = MoveGoal()
@@ -146,13 +148,15 @@ class RobotMover(object):
 		movegoal.speed = 0.05
 		self.move_action_client.send_goal(movegoal)
 
-	def close_gripper(self):
+	def close_gripper(self, wait=False):
 		graspgoal = GraspGoal()
 		graspgoal.width = 0.00
 		graspgoal.speed = 0.05
 		graspgoal.force = 2  # limits 0.01 - 50 N
 		graspgoal.epsilon = GraspEpsilon(inner=0.08, outer=0.08)
 		self.grasp_action_client.send_goal(graspgoal)
+		if wait:
+			self.move_action_client.wait_for_result()
 
 	def rotate_gripper(self, stepSize, clockwise = True):
 		# step size are: 0.01, 0.05, 0.1
@@ -179,10 +183,11 @@ class RobotMover(object):
 			target = copy.deepcopy(self.saved_positions[position])
 			target_approach = copy.deepcopy(target)
 			target_approach.position.z += self.pick_approach_height
-			self.open_gripper()
+			self.open_gripper(False)
 			self.move_robot_to_waypoints([target_approach])
+			self.open_gripper(True)
 			self.move_robot_to_waypoints([target])
-			self.close_gripper()
+			self.close_gripper(True)
 			self.move_robot_to_waypoints([target_approach])
 
 			rospy.loginfo("Robot picked object at position " + position)
@@ -196,7 +201,7 @@ class RobotMover(object):
 			target_approach.position.z += self.pick_approach_height
 			self.move_robot_to_waypoints([target_approach])
 			self.move_robot_to_waypoints([target])
-			self.open_gripper()
+			self.open_gripper(True)
 			self.move_robot_to_waypoints([target_approach])
 
 			rospy.loginfo("Robot placed object at position " + position)
@@ -211,7 +216,7 @@ class RobotMover(object):
 			target_approach.position.z += self.pick_approach_height
 			self.move_robot_to_waypoints([target_approach])
 			self.move_robot_to_waypoints([target])
-			self.open_gripper()
+			self.open_gripper(True)
 			self.move_robot_to_waypoints([target_approach])
 
 			rospy.loginfo("Robot stacked object at position " + position + " at a height of " + str(distance) + " m")
