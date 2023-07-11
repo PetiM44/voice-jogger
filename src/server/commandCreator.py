@@ -292,6 +292,9 @@ class CommandCreator(object):
             else:
                 position_name = self.get_name(name_words)
                 distance = self.get_number(distance_words)
+                if distance == None:
+                    print('Invalid ' + command + ' command. No proper distance value found. Correct form: STACK [position name] DISTANCE [distance]')
+                    return None
                 return ['STACK', position_name, distance]
 
 
