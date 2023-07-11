@@ -222,6 +222,19 @@ class RobotMover(object):
 			rospy.loginfo("Robot stacked object at position " + position + " at a height of " + str(distance) + " m")
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
+
+	def hold_object(self, position, distance):
+		if position in self.saved_positions.keys():
+			target = copy.deepcopy(self.saved_positions[position])
+			target.position.z += distance
+			target_approach = copy.deepcopy(target)
+			target_approach.position.z += self.pick_approach_height
+			self.move_robot_to_waypoints([target_approach])
+			self.move_robot_to_waypoints([target])
+			
+			rospy.loginfo("Robot is holding object at position " + position + " at a height of " + str(distance) + " m")
+		else:
+			rospy.loginfo("Position " + position + " not saved.")
         
         
 	def handle_received_command(self, command):
@@ -425,7 +438,17 @@ class RobotMover(object):
 				height = get_number(cmd[2:]) / 1000
 				self.stack_object(cmd[1], distance=height)
 			else:
-				rospy.loginfo("Not enough arguments, expected STACK [position name] [distance]")
+				rospy.loginfo("Not enough arguments, expected STACK [position name] DISTANCE [distance]")
+
+		elif cmd[0] == 'HOLD':
+			if len(cmd) > 2:
+				if cmd[1] == 'POSITION':
+					height = get_number(cmd[3:]) / 1000
+					self.hold_object(cmd[2], distance=height)
+				height = get_number(cmd[2:]) / 1000
+				self.hold_object(cmd[1], distance=height)
+			else:
+				rospy.loginfo("Not enough arguments, expected HOLD [position name] DISTANCE [distance]")
 			
 		#___________________TASK RECORDINGS______________________
 		elif cmd[0] == 'RECORD':

@@ -79,7 +79,8 @@ class CommandCreator(object):
             'baek' : 'PICK',
             'place' : 'PLACE',
             'police' : 'PLACE',
-            'stack' : 'STACK'
+            'stack' : 'STACK',
+            'hold' : 'HOLD'
         }
 
 
@@ -296,6 +297,34 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. No proper distance value found. Correct form: STACK [position name] DISTANCE [distance]')
                     return None
                 return ['STACK', position_name, distance]
+            
+        elif command == "HOLD":
+            if len(words) < 3:
+                return None
+            index = 0
+            distance_command_found = False
+            name_words = []
+            distance_words = []
+            for word in words:
+                distance_command = self.all_words_lookup_table.get(word, '')
+                if distance_command not in ['DISTANCE']:
+                    index += 1
+                    continue
+                else:
+                    distance_command_found = True
+                    name_words = words[0:index]
+                    distance_words = words[(index+1):]
+                    break
+            if not distance_command_found:
+                print('Invalid ' + command + ' command. Correct form: HOLD [position name] DISTANCE [distance]')
+                return None
+            else:
+                position_name = self.get_name(name_words)
+                distance = self.get_number(distance_words)
+                if distance == None:
+                    print('Invalid ' + command + ' command. No proper distance value found. Correct form: HOLD [position name] DISTANCE [distance]')
+                    return None
+                return ['HOLD', position_name, distance]
 
 
         elif type(command) == str:
