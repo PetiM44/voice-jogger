@@ -80,7 +80,8 @@ class CommandCreator(object):
             'place' : 'PLACE',
             'police' : 'PLACE',
             'stack' : 'STACK',
-            'hold' : 'HOLD'
+            'hold' : 'HOLD',
+            'whole' : 'HOLD'
         }
 
 
