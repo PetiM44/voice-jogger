@@ -104,6 +104,7 @@ Following are the most commonly used supported commands. More commands can be fo
 - PICK [position name]: Move robot above the given position, open the gripper, move down to the position, close the gripper and move back up
 - PLACE [position name]: Move robot above the given position, move down to the position, open the gripper and move back up
 - STACK [position name] DISTANCE [distance]: Similar to PLACE, but the target position for placing the object is above the given position by the distance specified as [distance]
+- HOLD [position name] DISTANCE [distance]: Similar to STACK, but it does not actually place the object at the position, but holds it at a distance above. Basically it moves the robot to a position [distance] above [position name].
 
 
 In step:
