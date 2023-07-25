@@ -208,6 +208,31 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	def offset_object(self, position, direction, distance):
+		if position in self.saved_positions.keys():
+			target = copy.deepcopy(self.saved_positions[position])
+			if direction == "forward":
+				target.position.x += distance
+			elif direction == "backward":
+				target.position.x -= distance
+			elif direction == "left":
+				target.position.y -= distance
+			elif direction == "right":
+				target.position.y += distance
+			else:
+				rospy.loginfo("Direction can be either left, right, forward or backward.")
+				return
+			target_approach = copy.deepcopy(target)
+			target_approach.position.z += self.pick_approach_height
+			self.move_robot_to_waypoints([target_approach])
+			self.move_robot_to_waypoints([target])
+			self.open_gripper(wait=True)
+			self.move_robot_to_waypoints([target_approach])
+
+			rospy.loginfo("Robot placed object at position " + position + " offset " + direction + " with " + distance + " m")
+		else:
+			rospy.loginfo("Position " + position + " not saved.")
+
 	def stack_object(self, position, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -429,6 +454,21 @@ class RobotMover(object):
 				self.place_object(cmd[1])
 			else:
 				rospy.loginfo("Not enough arguments, expected PLACE [position name]")
+		
+		elif cmd[0] == 'OFFSET':
+			if len(cmd) > 3:
+				if cmd[2] == "LEFT":
+					direction = "left"
+				elif cmd[2] == "RIGHT":
+					direction = "right"
+				elif cmd[2] == "FORWARD":
+					direction = "forward"
+				elif cmd[2] == "BACKWARD":
+					direction = "backward"
+				height = get_number(cmd[3:]) / 1000
+				self.offset_object(cmd[1], direction, height)
+			else:
+				rospy.loginfo("Not enough arguments, expected OFFSET [position name] [direction] [distance]")
 
 		elif cmd[0] == 'STACK':
 			if len(cmd) > 2:
