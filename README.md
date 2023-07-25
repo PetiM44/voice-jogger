@@ -92,7 +92,8 @@ Following are the most commonly used supported commands. More commands can be fo
 - POSITION [1,2,3, etc.]: Go to saved position
 - RECORD [TASK1, TASK2, etc.]: Start recording task in tasks.txt file
 - FINISH: Stop recording task
-- PLAY [TASK1, TASK2, etc]: Play recorded task
+- PLAY/DO/TASK [TASK1, TASK2, etc]: Play recorded task
+- REPEAT [# of times] TIMES [TASKNAME]: Plays TASKNAME # times.
 - HOME: Go to home position of the robot
 - REMOVE POSITION [1,2,3, etc.]: Remove position from file
 - TOOL OPEN: Open tool

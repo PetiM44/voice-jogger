@@ -346,7 +346,7 @@ class RobotMover(object):
 				rospy.loginfo("Not enough arguments, expected REMOVE POSITION [position name]")
 			
 			
-		#___________________TASK RECORDINGS______________________
+		#___________________TASK RECORDINGS AND EXECUTION______________________
 		elif cmd[0] == 'RECORD':
 			if len(cmd) > 1:
 				rospy.loginfo("Begin recording task with name %s", cmd[1])
@@ -376,6 +376,18 @@ class RobotMover(object):
 					print("Executing task failed: Task name " + cmd[1] + " not in recorded tasks.")
 			else:
 				print("Executing task failed: Correct command: TASK/DO/PLAY [task name]")
+
+		elif cmd[0] == 'REPEAT':
+			if len(cmd) != 4:
+				print("REPEAT error. Correct format: REPEAT [# of times] TIMES [task name]")
+			if cmd[3] in self.saved_tasks.keys():
+				repeats = int(get_number(cmd[1]))
+				for i in range(repeats):
+					print("Repeating " + cmd[3] + " " + (i+1))
+					self.handle_received_command(['TASK', cmd[3]])
+				print("Repeating " + cmd[3] + " " + (i+1) + " times finished.")
+			else:
+				print("Executing task failed: Task name " + cmd[3] + " not in recorded tasks.")
 
 
 		#___________________TEXT FILE HANDLING______________________
