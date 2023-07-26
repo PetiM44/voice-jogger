@@ -71,6 +71,7 @@ class RobotMover(object):
 		self.recording_task_name = None
 		self.saved_positions = tfh.load_position()
 		self.saved_tasks = tfh.load_task()
+		self.last_cmd = None
 		
 		
 	def move_gripper_home(self):
@@ -189,6 +190,16 @@ class RobotMover(object):
 				pass
 			else:
 				self.saved_tasks[self.recording_task_name]["moves"].append(cmd)
+
+		#________________AGAIN COMMAND___________________________
+		if cmd[0] == "AGAIN":
+			if self.last_cmd == None:
+				print("No command stored yet.")
+			else:
+				self.handle_received_command(self.last_cmd)
+		else:
+			self.last_cmd = cmd
+
         
         #________________MOVE COMMANDS___________________________
 		if cmd[0] == "HOME":

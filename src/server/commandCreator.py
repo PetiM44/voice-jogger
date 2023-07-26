@@ -75,7 +75,8 @@ class CommandCreator(object):
             'opposite' : 'OPPOSITE', 
             'counter' : 'COUNTER',
             'repeat' : 'REPEAT',
-            'times' : 'TIMES'
+            'times' : 'TIMES',
+            'again' : 'AGAIN'
         }
 
 
@@ -252,7 +253,10 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. Correct form: REPEAT [# of times] TIMES [task name]')
                     return None
                 return ['REPEAT', times, 'TIMES', task_name]
-
+            
+        #___________________REPEAT LAST COMMAND________________________
+        elif command == 'AGAIN':
+            return ['AGAIN']
 
         #___________________LIST/SHOW TASKS/POSITIONS__________________
         elif command == "LIST" or command == "SHOW":
