@@ -383,12 +383,11 @@ class RobotMover(object):
 			if cmd[3] in self.saved_tasks.keys():
 				repeats = int(get_number(cmd[1]))
 				for i in range(repeats):
-					print("Repeating " + cmd[3] + " " + (i+1))
+					print("Repeating " + cmd[3] + " " + str(i+1))
 					self.handle_received_command(['TASK', cmd[3]])
-				print("Repeating " + cmd[3] + " " + (i+1) + " times finished.")
+				print("Repeating " + cmd[3] + " " + str(i+1)+ " times finished.")
 			else:
 				print("Executing task failed: Task name " + cmd[3] + " not in recorded tasks.")
-
 
 		#___________________TEXT FILE HANDLING______________________
 		#___________________LIST TASKS/POSITIONS______________________

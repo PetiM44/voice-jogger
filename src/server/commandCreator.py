@@ -74,6 +74,7 @@ class CommandCreator(object):
             'other' : 'OTHER',
             'opposite' : 'OPPOSITE', 
             'counter' : 'COUNTER',
+            'repeat' : 'REPEAT',
             'times' : 'TIMES'
         }
 
