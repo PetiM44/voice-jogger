@@ -229,7 +229,11 @@ class RobotMover(object):
 			self.open_gripper(wait=True)
 			self.move_robot_to_waypoints([target_approach])
 
+<<<<<<< HEAD
 			rospy.loginfo("Robot placed object at position " + position + " offset " + direction + " with " + str(distance) + " m")
+=======
+			rospy.loginfo("Robot placed object at position " + position + " offset " + direction + " with " + distance + " m")
+>>>>>>> 0e1e79f15f7775a4bfcec45f33bf34aca0889f7b
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
