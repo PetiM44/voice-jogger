@@ -80,6 +80,8 @@ class CommandCreator(object):
             'place' : 'PLACE',
             'police' : 'PLACE',
             'offset' : 'OFFSET',
+            'push' : 'PUSH',
+            'bush' : 'PUSH',
             'stack' : 'STACK',
             'hold' : 'HOLD',
             'whole' : 'HOLD'
@@ -299,6 +301,34 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. No proper distance value found. Correct form: OFFSET [position] [direction] [distance]')
                     return None
                 return ['OFFSET', position_name, direction_command, distance]
+            
+        elif command == "PUSH":
+            if len(words) < 3:
+                return None
+            index = 0
+            direction_command_found = False
+            name_words = []
+            distance_words = []
+            for word in words:
+                direction_command = self.all_words_lookup_table.get(word, '')
+                if direction_command not in ['LEFT', 'RIGHT', 'FORWARD', 'BACKWARD']:
+                    index += 1
+                    continue
+                else:
+                    direction_command_found = True
+                    name_words = words[0:index]
+                    distance_words = words[(index+1):]
+                    break
+            if not direction_command_found:
+                print('Invalid ' + command + ' command. Correct form: PUSH [position] [direction] [distance]')
+                return None
+            else:
+                position_name = self.get_name(name_words)
+                distance = self.get_number(distance_words)
+                if distance == None:
+                    print('Invalid ' + command + ' command. No proper distance value found. Correct form: PUSH [position] [direction] [distance]')
+                    return None
+                return ['PUSH', position_name, direction_command, distance]
         
         elif command == "STACK":
             if len(words) < 3:
