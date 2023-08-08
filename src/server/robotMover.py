@@ -71,7 +71,7 @@ class RobotMover(object):
 		self.recording_task_name = None
 		self.saved_positions = tfh.load_position()
 		self.saved_tasks = tfh.load_task()
-
+		self.last_cmd = None
 		self.pick_approach_height = 0.2
 		
 		
@@ -310,6 +310,16 @@ class RobotMover(object):
 				pass
 			else:
 				self.saved_tasks[self.recording_task_name]["moves"].append(cmd)
+
+		#________________AGAIN COMMAND___________________________
+		if cmd[0] == "AGAIN":
+			if self.last_cmd == None:
+				print("No command stored yet.")
+			else:
+				self.handle_received_command(self.last_cmd)
+		else:
+			self.last_cmd = cmd
+
         
         #________________MOVE COMMANDS___________________________
 		if cmd[0] == "HOME":
@@ -533,7 +543,7 @@ class RobotMover(object):
 			else:
 				rospy.loginfo("Not enough arguments, expected HOLD [position name] DISTANCE [distance]")
 			
-		#___________________TASK RECORDINGS______________________
+		#___________________TASK RECORDINGS AND EXECUTION______________________
 		elif cmd[0] == 'RECORD':
 			if len(cmd) > 1:
 				rospy.loginfo("Begin recording task with name %s", cmd[1])
@@ -564,6 +574,17 @@ class RobotMover(object):
 			else:
 				print("Executing task failed: Correct command: TASK/DO/PLAY [task name]")
 
+		elif cmd[0] == 'REPEAT':
+			if len(cmd) != 4:
+				print("REPEAT error. Correct format: REPEAT [# of times] TIMES [task name]")
+			if cmd[3] in self.saved_tasks.keys():
+				repeats = int(get_number(cmd[1]))
+				for i in range(repeats):
+					print("Repeating " + cmd[3] + " " + str(i+1))
+					self.handle_received_command(['TASK', cmd[3]])
+				print("Repeating " + cmd[3] + " " + str(i+1)+ " times finished.")
+			else:
+				print("Executing task failed: Task name " + cmd[3] + " not in recorded tasks.")
 
 		#___________________TEXT FILE HANDLING______________________
 		#___________________LIST TASKS/POSITIONS______________________

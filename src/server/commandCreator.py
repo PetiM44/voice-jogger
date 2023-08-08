@@ -84,7 +84,10 @@ class CommandCreator(object):
             'bush' : 'PUSH',
             'stack' : 'STACK',
             'hold' : 'HOLD',
-            'whole' : 'HOLD'
+            'whole' : 'HOLD',
+            'repeat' : 'REPEAT',
+            'times' : 'TIMES',
+            'again' : 'AGAIN'
         }
 
 
@@ -231,6 +234,40 @@ class CommandCreator(object):
             else:
                 print('Invalid ' + command + ' command. Correct form: TASK/DO/PLAY [task name]')
                 return None
+            
+        #___________________REPEAT TASKNAME______________________
+        elif command == 'REPEAT':
+            if len(words) < 3:
+                print('Invalid ' + command + ' command. Correct form: REPEAT [# of times] TIMES [task name]')
+                return None
+            index = 0
+            times_found = False
+            number_words = []
+            task_name = []
+            for word in words:
+                current_word = self.all_words_lookup_table.get(word, '')
+                if current_word not in ['TIMES']:
+                    index += 1
+                    continue
+                else:
+                    times_found = True
+                    number_words = words[0:index]
+                    task_name = words[(index+1):]
+                    break
+            if not times_found:
+                print('Invalid ' + command + ' command. Correct form: REPEAT [# of times] TIMES [task name]')
+                return None
+            else:
+                times = self.get_number(number_words)
+                task_name = self.get_name(task_name)
+                if times == None:
+                    print('Invalid ' + command + ' command. Correct form: REPEAT [# of times] TIMES [task name]')
+                    return None
+                return ['REPEAT', times, 'TIMES', task_name]
+            
+        #___________________REPEAT LAST COMMAND________________________
+        elif command == 'AGAIN':
+            return ['AGAIN']
 
         #___________________LIST/SHOW TASKS/POSITIONS__________________
         elif command == "LIST" or command == "SHOW":
