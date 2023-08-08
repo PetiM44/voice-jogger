@@ -585,6 +585,38 @@ class RobotMover(object):
 				print("Repeating " + cmd[3] + " " + str(i+1)+ " times finished.")
 			else:
 				print("Executing task failed: Task name " + cmd[3] + " not in recorded tasks.")
+		
+		#________JOG <direction> <# of times> TIMES <task name>__________
+		elif cmd[0] == 'JOG':
+			if len(cmd) != 5:
+				print("JOG error. Correct format: JOG [direction] [# of times] TIMES [task name]")
+			if cmd[1] not in ['LEFT', 'RIGHT', 'FORWARD', 'BACKWARD']:
+				print("Direction must be either left, right, forward or backward.")
+			elif cmd[4] in self.saved_tasks.keys():
+				repeats = int(get_number(cmd[2]))
+				for i in range(repeats):
+					print("Jogging " + cmd[4] + " " + str(i+1))
+					step_size_before_task = self.step_size
+					self.step_size = self.saved_tasks[cmd[4]]["start_step_size"]
+					start_pose = copy.deepcopy(self.saved_tasks[cmd[4]]["start_pose"])
+					if cmd[1] == "FORWARD":
+						start_pose.position.x += i * step_size_before_task
+					elif cmd[1] == "BACKWARD":
+						start_pose.position.x -= i * step_size_before_task
+					elif cmd[1] == "LEFT":
+						start_pose.position.y -= i * step_size_before_task
+					elif cmd[1] == "RIGHT":
+						start_pose.position.y += i * step_size_before_task
+					(plan, fraction) = self.move_group.compute_cartesian_path([start_pose], 0.01, 0.0)
+					self.move_group.execute(plan, wait=True)
+
+					for step in self.saved_tasks[cmd[4]]["moves"]:
+						print("calling handle received command with params", step)
+						self.handle_received_command(step)
+					self.step_size = step_size_before_task
+				print("Jogging " + cmd[4] + " " + str(i+1)+ " times finished.")
+			else:
+				print("Executing task failed: Task name " + cmd[4] + " not in recorded tasks.")
 
 		#___________________TEXT FILE HANDLING______________________
 		#___________________LIST TASKS/POSITIONS______________________
