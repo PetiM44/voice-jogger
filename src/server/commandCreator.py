@@ -38,6 +38,7 @@ class CommandCreator(object):
             'forward': 'FORWARD',
             'front': 'FORWARD',
             'backward': 'BACKWARD',
+            'backwards' : 'BACKWARD',
             'back': 'BACKWARD',
             'mode' : 'MODE',
             'distance' : 'DISTANCE',
@@ -76,7 +77,10 @@ class CommandCreator(object):
             'counter' : 'COUNTER',
             'repeat' : 'REPEAT',
             'times' : 'TIMES',
-            'again' : 'AGAIN'
+            'again' : 'AGAIN',
+            'jog' : 'JOG',
+            'joke' : 'joke',
+            'joerg' : 'JOG'
         }
 
 
@@ -253,6 +257,40 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. Correct form: REPEAT [# of times] TIMES [task name]')
                     return None
                 return ['REPEAT', times, 'TIMES', task_name]
+
+        #___________________JOG TASKNAME______________________    
+        elif command == 'JOG':
+            if len(words) < 4:
+                print('Invalid ' + command + ' command. Correct form: JOG [direction] [# of times] TIMES [task name]')
+                return None
+            direction_word = self.all_words_lookup_table.get(words.pop(0), '')
+            if direction_word not in ['LEFT', 'RIGHT', 'FORWARD', 'BACKWARD']:
+                print('Direction can be either left, right, forward or backward.')
+                return None
+            index = 0
+            times_found = False
+            number_words = []
+            task_name = []
+            for word in words:
+                current_word = self.all_words_lookup_table.get(word, '')
+                if current_word not in ['TIMES']:
+                    index += 1
+                    continue
+                else:
+                    times_found = True
+                    number_words = words[0:index]
+                    task_name = words[(index+1):]
+                    break
+            if not times_found:
+                print('Invalid ' + command + ' command. Correct form: JOG [direction] [# of times] TIMES [task name]')
+                return None
+            else:
+                times = self.get_number(number_words)
+                task_name = self.get_name(task_name)
+                if times == None:
+                    print('Invalid ' + command + ' command. Correct form: JOG [direction] [# of times] TIMES [task name]')
+                    return None
+                return ['JOG', direction_word, times, 'TIMES', task_name]
             
         #___________________REPEAT LAST COMMAND________________________
         elif command == 'AGAIN':

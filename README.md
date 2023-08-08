@@ -94,6 +94,7 @@ Following are the most commonly used supported commands. More commands can be fo
 - FINISH: Stop recording task
 - PLAY/DO/TASK [TASK1, TASK2, etc]: Play recorded task
 - REPEAT [# of times] TIMES [TASKNAME]: Plays TASKNAME # times.
+- JOG [direction] [# of times] TIMES [TASKNAME]: Plays TASKNAME # times, but offsets the starting position in [direction] by the step size each time the task is repeatd.
 - HOME: Go to home position of the robot
 - REMOVE POSITION [1,2,3, etc.]: Remove position from file
 - TOOL OPEN: Open tool
