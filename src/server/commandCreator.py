@@ -79,7 +79,7 @@ class CommandCreator(object):
             'times' : 'TIMES',
             'again' : 'AGAIN',
             'jog' : 'JOG',
-            'joke' : 'joke',
+            'joke' : 'JOG',
             'joerg' : 'JOG'
         }
 
