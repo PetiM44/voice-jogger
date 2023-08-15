@@ -109,6 +109,8 @@ Following are the most commonly used supported commands. More commands can be fo
 - STACK [position name] DISTANCE [distance]: Similar to PLACE, but the target position for placing the object is above the given position by the distance specified as [distance]
 - HOLD [position name] DISTANCE [distance]: Similar to STACK, but it does not actually place the object at the position, but holds it at a distance above. Basically it moves the robot to a position [distance] above [position name].
 
+- CIRCLE [direction] [radius]: Moves the end-effector along a circle in the horizontal plane. The circle starts in the FORWARD direction, and its center point is [radius] distance in [direction] direction from the starting point. This command is currently very basic, and most likely will not be developed further due to limitations of voice commanding.
+
 
 In step:
 
