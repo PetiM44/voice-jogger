@@ -300,9 +300,9 @@ class RobotMover(object):
 			center.position.y += radius
 		resolution = 72
 
-		for i in range(resolution + 1):
-			dX = radius * math.cos(2 * math.pi * i / resolution) # in case of LEFT circle: add this to center.position.y
-			dY = radius * math.sin(2 * math.pi * i / resolution) # in case of LEFT circle: add this to center.position.x
+		for i in range(resolution):
+			dX = radius * math.cos(2 * math.pi * (i + 1) / resolution) # in case of LEFT circle: add this to center.position.y
+			dY = radius * math.sin(2 * math.pi * (i + 1) / resolution) # in case of LEFT circle: add this to center.position.x
 			waypoint = copy.deepcopy(center)
 			if direction == 'LEFT':
 				waypoint.position.y += dX
