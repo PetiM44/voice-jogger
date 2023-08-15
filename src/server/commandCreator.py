@@ -91,7 +91,8 @@ class CommandCreator(object):
             'again' : 'AGAIN',
             'jog' : 'JOG',
             'joke' : 'JOG',
-            'joerg' : 'JOG'
+            'joerg' : 'JOG',
+            'circle': 'CIRCLE'
         }
 
 
@@ -460,6 +461,22 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. No proper distance value found. Correct form: HOLD [position name] DISTANCE [distance]')
                     return None
                 return ['HOLD', position_name, distance]
+
+        #___________________MOVE IN CIRCLE___________________________
+        elif command == "CIRCLE":
+            if len(words) < 2:
+                print('Invalid ' + command + ' command. Correct form: CIRCLE [DIRECTION] [radius]')
+                return None
+            dir = words.pop(0).upper()
+            if dir not in ['LEFT', 'RIGHT']:
+                print('Invalid ' + command + ' command. Direction can be either LEFT or RIGHT')
+                return None
+            radius = self.get_number(words[0:])
+            if radius == None:
+                print('Invalid ' + command + ' command. Radius not found')
+                return None
+            return ['CIRCLE', dir, radius]
+            
 
 
         elif type(command) == str:
