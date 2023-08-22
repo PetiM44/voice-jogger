@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>Voice Jogger</title>
+
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Voice Jogger: voice commanding a robotic arm using low-level and hierarchical commands" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.css">
+    <link rel="stylesheet" href="css/app.css">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.8.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.3/clipboard.min.js"></script>
+    
+</head>
+
+<body>
+    <div class="container" id="main">
+        <div class="row">
+            <h2 class="col-md-8 text-center col-md-offset-2">
+            Voice Jogger: voice commanding a robotic arm using low-level and hierarchical commands</br> 
+            <small>
+            June - August 2023
+            </small>
+            </h2>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <ul class="list-inline">
+                    <li>
+                        Péter Telkes
+                    </li>
+                    <li>
+                        <a href="https://www.tuni.fi/en/roel-pieters">
+                            Roel Pieters
+                        </a>
+                    </li>
+                    </br>Tampere University
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Overview
+                </h3>
+                <p class="text-justify">
+                    In the scope of this project I've extended the functionalities of the pre-existing Voice Jogger, a software set used to command a Franka Emika Panda robotic arm via voice commands. The updated software contains simple low-level commands for short term commanding of the robot arm, as well as high-level commands that execute a chain of subsequent motions. The functionalities of the voice jogger have been tested in two assembly tasks, one of which also included significant collaboration from a human operator. In addition, some other experiments were used to test the capabilities of the commanding to execute repeated tasks, including planar motions.
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Code structure
+                </h3>
+                <p class="text-justify">
+                    The original code was designed to be used by an Android application, using the microphone of the mobile phone. For the ease of testing, I have used a microphone directly connected to the computer, and all tests were done with such a setup.
+                </p>
+                <p class="text-justify">
+                    The server part of the Voice Jogger consists of three important Python files: <em>microphone_input.py</em>, <em>commandCreator.py</em> and <em>robotMover.py</em>. <em>microphone_input.py</em> is responsible for handling audio input from the microphone, and publishing commands on the "<em>/text_commands</em>" ROS topic. The actual command messages are created by <em>commandCreator.py</em>, which is called by <em>microphone_input.py</em>. <em>commandCreator.py</em> uses the recognized words as input, and creates the command to be sent on the ROS topic. This file has a list of the relevant command words to be detected, and uses a simple decision-tree-like heuristic to fetch the actual command from the recognized input words.
+                </p>
+                <p class="text-justify">
+                    <em>robotMover.py</em> is the file that deals with the actual movements of the robots. This file uses the command on the "<em>/test_commands</em>" topic as its input, and matches the commands to robot actions. This includes using the Python interface of MoveIt to control lower-level, cartesian movements of the robot arm, and constructing high-level tasks of the robot from the low-level components. As this file handles robot actions, all physical functionality is defined in this file.
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    New commands
+                </h3>
+                <p class="text-justify">
+                    The following list contains the commands newly added to the <span class="code">voice-jogger</span> repository.
+                </p>
+
+                <ul>
+                    <li>Repetition commands:<ul>
+                    <li><span class="code"><b>REPEAT</b> [# of times] TIMES [TASKNAME]</span>: Plays the pre-recorded task with the name specified in [TASKNAME] # times.</li>
+                    <li><span class="code"><b>JOG</b> [DIRECTION] [# of times] TIMES [TASKNAME]</span>: Plays the pre-recorded task with the name specified in [TASKNAME] # times, but with each repetition, the starting position is offset in [DIRECTION] by the pre-set step size.</li>
+                    </ul></li>
+                    <li>Pick-place commands:<ul>
+                        <li><span class="code"><b>PICK</b> [position name]</span>: Perform a "pick" task at the specified position, i.e. move the gripper above the given position, open the gripper, move down to the position, close the gripper and move back up.</li>
+                        <li><span class="code"><b>PLACE</b> [position name]</span>: Perform a "place" task at the specified position, i.e. move the gripper above the given position, move down to the position, open the gripper and move back up.</li>
+                        <li><span class="code"><b>OFFSET</b> [position name] [direction] [distance]</span>: Similar to PLACE, but the target position for placing is offset in the given direction by the given distance. Direction can be left/right/forward/backward.</li>
+                        <li><span class="code"><b>STACK</b> [position name] DISTANCE [distance]</span>: Similar to PLACE, but the target position for placing the object is above the given position by the distance specified in [distance].</li>
+                        <li><span class="code"><b>HOLD</b> [position name] DISTANCE [distance]</span>: Similar to STACK, but it does not actually place the object at the position, but holds it at a distance above instead. Basically it moves the robot to a position [distance] above [position name].</li> 
+                    </ul></li>
+                </ul>
+                <p>A list of commands, incuding the pre-existing ones can be found in the <span class="code">README.md</span> file of the repository.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Usage
+                </h3>
+                <p class="text-justify">
+                    The voice jogger can be used either in simulation or on a real-world robot. To run the code, open three terminal windows, and run the following commands:
+                </p>
+                <ol>
+                    <li>In the first terminal, run the following:<ul>
+                        <li>For simulation:
+                            <div class="code">roslaunch panda_moveit_config demo.launch</div>
+                        </li>
+                        <li>For real robot:
+                            <div class="code">roslaunch panda_moveit_config franka_control.launch robot_ip:=130.230.36.115 load_gripper:=True</div>
+                            <p>Make sure to insert the actual IP-address of the robot in the command.</p>
+                        </li>
+                    </ul></li>
+                    <li>
+                        In the second terminal:
+                        <ul>
+                            <li>For using the Android app:
+                                <div class="code">python3 main.py</div>
+                            </li>
+                            <li>For using the computer's microphone:
+                                <div class="code">python3 microphone_input.py</div>
+                            </li>
+                            <li>For using terminal input to test <span class="code">robotMover.py</span>:
+                                <div class="code">python3 ros_message_transmitter_for_testing_robotMover.py</div>
+                            </li>
+                        </ul>
+                        <p class="text-justify">Do note, however, that the during the experiments the voice jogger has only been tested using the computer's microphone. There has been no changes to any of these files, but stable working can not be guaranteed with the other two scripts.</p>
+                    </li>
+                    <li>In the third terminal:
+                        <div class="code">python3 robotMover.py</div>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                   Experiments
+                </h3>
+                <p class="text-justify">
+                    A couple of experiments were performed to test and demonstrate the capabilities and limitations of this voice jogging approach. Video recordings of some of the experiments can be found below.
+                </p>
+                <h4>
+                    Assembly tasks
+                </h4>
+                <h5>Helical Gears assembly</h5>
+                <p class="text-justify">In this experiment, voice commanding was used to assemble a helical gearset. The parts of the helical gears were 3D-printed and their models are available <a href="https://www.thingiverse.com/thing:3936460">here</a>. This assembly task includes the usage of the <b>PICK</b>, <b>PLACE</b> and <b>STACK</b> commands.</p>
+                <div class="text-center">
+                    <div style="position:relative;padding-top:56.25%;">
+                        <iframe src="https://www.youtube.com/watch?v=FJaW428lleE" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+                    </div>
+                </div>
+                <h5>Planetary Gearhead assembly</h5>
+                <p class="text-justify">In this experiment, voice commanding was used to assemble a planetary gearhead, showing collaboration between the robot and the human operator. The parts of the gearhead were 3D-printed and their models are available <a href="https://www.thingiverse.com/thing:8460">here</a>. This task also shows the <b>PICK</b>, <b>PLACE</b> and <b>STACK</b> commands, and the <b>HOLD</b> command as well.</p>
+                <div class="text-center">
+                    <div style="position:relative;padding-top:56.25%;">
+                        <iframe src="https://www.youtube.com/watch?v=YMSPFetEOgs" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+                    </div>
+                </div>
+                <h4>
+                    Planar motion with repetition
+                </h4>
+                <p class="text-justify">In this experiment, a single execution of a planar task was recorded, then executed while changing its starting position with each repetition using the <b>JOG</b> command.</p>
+                <div class="text-center">
+                    <div style="position:relative;padding-top:56.25%;">
+                        <iframe src="https://www.youtube.com/watch?v=Tzuvfw4E2s0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+                    </div>
+                </div>
+                <h4>
+                    Vertical motion with repetition
+                </h4>
+                <p class="text-justify">In this experiment, a single execution of a vertical task was recorded, then executed while changing its starting position with each repetition using the <b>JOG</b> command.</p>
+                <div class="text-center">
+                    <div style="position:relative;padding-top:56.25%;">
+                        <iframe src="https://www.youtube.com/watch?v=nTgKUxSIKiI" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+                    </div>
+                </div>
+                <h4>
+                    Circular motion with repetition
+                </h4>
+                <p class="text-justify">In this experiment, a task including circular motion was recorded, then executed while changing its starting position with each repetition. This experiment shows the <b>CIRCLE</b> and the <b>JOG</b> commands, as well as the ability to change the offset distance of the starting position using the step size setting.</p>
+                <div class="text-center">
+                    <div style="position:relative;padding-top:56.25%;">
+                        <iframe src="https://www.youtube.com/watch?v=xWtERxNT4C0" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<br>
+
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h3>
+                    Acknowledgements
+                </h3>
+                <p class="text-justify">
+                This website is based on <a href="https://jonbarron.info/">the academic website of Jon Barron</a>, the source code of which can be found <a href="https://github.com/jonbarron/website">here</a>.
+                </p>
+                <p>The original Voice Jogger repository that served as the starting point for this project was developed by Ara Jo, Mikko Kulju, Niklas Sorri and Omar Hassan, and is available on <a href="https://github.com/spomha/voice-jogger/tree/initial">GitHub</a>.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
