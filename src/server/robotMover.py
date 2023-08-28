@@ -3,6 +3,7 @@
 
 import sys
 import copy
+import math
 import rospy
 import actionlib
 import moveit_commander
@@ -288,6 +289,31 @@ class RobotMover(object):
 			rospy.loginfo("Robot is holding object at position " + position + " at a height of " + str(distance) + " m")
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
+
+	def circle(self, direction, radius):
+		waypoints = []
+		robot_pose = self.move_group.get_current_pose().pose
+		center = copy.deepcopy(robot_pose)
+		if direction == 'LEFT':
+			center.position.y -= radius
+		elif direction == 'RIGHT':
+			center.position.y += radius
+		resolution = 72
+
+		for i in range(resolution):
+			dX = radius * math.cos(2 * math.pi * (i + 1) / resolution) # in case of LEFT circle: add this to center.position.y
+			dY = radius * math.sin(2 * math.pi * (i + 1) / resolution) # in case of LEFT circle: add this to center.position.x
+			waypoint = copy.deepcopy(center)
+			if direction == 'LEFT':
+				waypoint.position.y += dX
+			elif direction == 'RIGHT':
+				waypoint.position.y -= dX
+			waypoint.position.x += dY
+			waypoints.append(waypoint)
+		
+		(plan, fraction) = self.move_group.compute_cartesian_path(waypoints, 0.01, 0.0)  # jump_threshold
+		self.move_group.execute(plan, wait=True)
+
         
         
 	def handle_received_command(self, command):
@@ -617,6 +643,17 @@ class RobotMover(object):
 				print("Jogging " + cmd[4] + " " + str(i+1)+ " times finished.")
 			else:
 				print("Executing task failed: Task name " + cmd[4] + " not in recorded tasks.")
+
+		#________CIRCLE__________
+		elif cmd[0] == 'CIRCLE':
+			if len(cmd) < 2:
+				print("CIRCLE error. Correct format: CIRCLE [direction] [distance]")
+			elif cmd[1] not in ['LEFT', 'RIGHT']:
+				print("CIRCLE error. Direction can be either LEFT or RIGHT")
+			else:
+				radius = get_number(cmd[2:]) / 1000
+				self.circle(cmd[1], radius)
+				rospy.loginfo("Circle done.")
 
 		#___________________TEXT FILE HANDLING______________________
 		#___________________LIST TASKS/POSITIONS______________________
