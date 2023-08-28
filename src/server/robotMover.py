@@ -179,6 +179,7 @@ class RobotMover(object):
 			print(joint_goal[6])
 			self.move_group.go(joint_goal, wait=True)
 
+	### Added by Peter ###
 	def pick_object(self, position):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -195,6 +196,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def place_object(self, position):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -209,6 +211,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def offset_object(self, position, direction, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -234,6 +237,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def push_object(self, position, direction, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -262,6 +266,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def stack_object(self, position, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -277,6 +282,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def hold_object(self, position, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -290,6 +296,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def circle(self, direction, radius):
 		waypoints = []
 		robot_pose = self.move_group.get_current_pose().pose
@@ -337,6 +344,7 @@ class RobotMover(object):
 			else:
 				self.saved_tasks[self.recording_task_name]["moves"].append(cmd)
 
+		### Added by Peter ###
 		#________________AGAIN COMMAND___________________________
 		if cmd[0] == "AGAIN":
 			if self.last_cmd == None:
@@ -501,8 +509,9 @@ class RobotMover(object):
 				print("Position " + cmd[2] + " removed.")
 			else:
 				rospy.loginfo("Not enough arguments, expected REMOVE POSITION [position name]")
-			
-		#_________________PICK AND PLACE_________________________
+
+		### Added by Peter ###			
+		#_________________PICK AND PLACE related commands_________________________
 		elif cmd[0] == 'PICK':
 			if len(cmd) > 1:
 				if cmd[1] == 'POSITION':
@@ -612,6 +621,7 @@ class RobotMover(object):
 			else:
 				print("Executing task failed: Task name " + cmd[3] + " not in recorded tasks.")
 		
+		### Added by Peter ###
 		#________JOG <direction> <# of times> TIMES <task name>__________
 		elif cmd[0] == 'JOG':
 			if len(cmd) != 5:
@@ -644,6 +654,7 @@ class RobotMover(object):
 			else:
 				print("Executing task failed: Task name " + cmd[4] + " not in recorded tasks.")
 
+		### Added by Peter ###
 		#________CIRCLE__________
 		elif cmd[0] == 'CIRCLE':
 			if len(cmd) < 2:
