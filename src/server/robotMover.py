@@ -3,6 +3,7 @@
 
 import sys
 import copy
+import math
 import rospy
 import actionlib
 import moveit_commander
@@ -178,6 +179,7 @@ class RobotMover(object):
 			print(joint_goal[6])
 			self.move_group.go(joint_goal, wait=True)
 
+	### Added by Peter ###
 	def pick_object(self, position):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -194,6 +196,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def place_object(self, position):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -208,6 +211,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def offset_object(self, position, direction, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -233,6 +237,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def push_object(self, position, direction, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -261,6 +266,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def stack_object(self, position, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -276,6 +282,7 @@ class RobotMover(object):
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
 
+	### Added by Peter ###
 	def hold_object(self, position, distance):
 		if position in self.saved_positions.keys():
 			target = copy.deepcopy(self.saved_positions[position])
@@ -288,6 +295,32 @@ class RobotMover(object):
 			rospy.loginfo("Robot is holding object at position " + position + " at a height of " + str(distance) + " m")
 		else:
 			rospy.loginfo("Position " + position + " not saved.")
+
+	### Added by Peter ###
+	def circle(self, direction, radius):
+		waypoints = []
+		robot_pose = self.move_group.get_current_pose().pose
+		center = copy.deepcopy(robot_pose)
+		if direction == 'LEFT':
+			center.position.y -= radius
+		elif direction == 'RIGHT':
+			center.position.y += radius
+		resolution = 72
+
+		for i in range(resolution):
+			dX = radius * math.cos(2 * math.pi * (i + 1) / resolution) # in case of LEFT circle: add this to center.position.y
+			dY = radius * math.sin(2 * math.pi * (i + 1) / resolution) # in case of LEFT circle: add this to center.position.x
+			waypoint = copy.deepcopy(center)
+			if direction == 'LEFT':
+				waypoint.position.y += dX
+			elif direction == 'RIGHT':
+				waypoint.position.y -= dX
+			waypoint.position.x += dY
+			waypoints.append(waypoint)
+		
+		(plan, fraction) = self.move_group.compute_cartesian_path(waypoints, 0.01, 0.0)  # jump_threshold
+		self.move_group.execute(plan, wait=True)
+
         
         
 	def handle_received_command(self, command):
@@ -311,6 +344,7 @@ class RobotMover(object):
 			else:
 				self.saved_tasks[self.recording_task_name]["moves"].append(cmd)
 
+		### Added by Peter ###
 		#________________AGAIN COMMAND___________________________
 		if cmd[0] == "AGAIN":
 			if self.last_cmd == None:
@@ -475,8 +509,9 @@ class RobotMover(object):
 				print("Position " + cmd[2] + " removed.")
 			else:
 				rospy.loginfo("Not enough arguments, expected REMOVE POSITION [position name]")
-			
-		#_________________PICK AND PLACE_________________________
+
+		### Added by Peter ###			
+		#_________________PICK AND PLACE related commands_________________________
 		elif cmd[0] == 'PICK':
 			if len(cmd) > 1:
 				if cmd[1] == 'POSITION':
@@ -586,6 +621,7 @@ class RobotMover(object):
 			else:
 				print("Executing task failed: Task name " + cmd[3] + " not in recorded tasks.")
 		
+		### Added by Peter ###
 		#________JOG <direction> <# of times> TIMES <task name>__________
 		elif cmd[0] == 'JOG':
 			if len(cmd) != 5:
@@ -617,6 +653,18 @@ class RobotMover(object):
 				print("Jogging " + cmd[4] + " " + str(i+1)+ " times finished.")
 			else:
 				print("Executing task failed: Task name " + cmd[4] + " not in recorded tasks.")
+
+		### Added by Peter ###
+		#________CIRCLE__________
+		elif cmd[0] == 'CIRCLE':
+			if len(cmd) < 2:
+				print("CIRCLE error. Correct format: CIRCLE [direction] [distance]")
+			elif cmd[1] not in ['LEFT', 'RIGHT']:
+				print("CIRCLE error. Direction can be either LEFT or RIGHT")
+			else:
+				radius = get_number(cmd[2:]) / 1000
+				self.circle(cmd[1], radius)
+				rospy.loginfo("Circle done.")
 
 		#___________________TEXT FILE HANDLING______________________
 		#___________________LIST TASKS/POSITIONS______________________

@@ -54,35 +54,41 @@ The code is divided into several parts.
 
 For running the code in simulation:-
 
-In 1st terminal: 
+**In 1st terminal:** 
 
 For simulation:
 
     roslaunch panda_moveit_config demo.launch
 
-For real robot:
+For real robot (make sure to insert the actual IP address of the robot):
 
     roslaunch panda_moveit_config franka_control.launch robot_ip:=130.230.36.115 load_gripper:=True
 
-In second terminal:
+**In second terminal:**
+
+For using mobile app as voice input:
 
     python3 main.py 
 OR
+
+For using the microphone of the computer as voice input:
 
     python3 microphone_input.py 
     
 OR
 
+For manual typing of the commands:
+
     python3 ros_message_transmitter_for_testing_robotMover.py
 
-In third terminal:
+**In third terminal:**
 
     python3 robotMover.py
 
 
-## Support Commands and Modes
+## Supported Commands and Modes
 
-Following are the most commonly used supported commands. More commands can be found from server/commandCreator.py but the command usage isn't written here
+Following are the most commonly used supported commands. More commands can be found from server/commandCreator.py but the command usage isn't written here.
 
 - START PANDA: Once ran, all valid commands are going to be published to ROS topic
 - STOP PANDA: Once ran, commands may get recognized but they wont get published
@@ -94,20 +100,34 @@ Following are the most commonly used supported commands. More commands can be fo
 - FINISH: Stop recording task
 - PLAY/DO/TASK [TASK1, TASK2, etc]: Play recorded task
 - REPEAT [# of times] TIMES [TASKNAME]: Plays TASKNAME # times.
-- JOG [direction] [# of times] TIMES [TASKNAME]: Plays TASKNAME # times, but offsets the starting position in [direction] by the step size each time the task is repeatd.
+    - Example: "REPEAT 3 TIMES PAINT" (assuming that a task named "PAINT" was previously recorded)
+- JOG [direction] [# of times] TIMES [TASKNAME]: Plays TASKNAME # times, but offsets the starting position in [direction] by the step size each time the task is repeated. [direction] can be LEFT/RIGHT/FORWARD/BACKWARD/UP/DOWN.
+    - Example: "JOG LEFT 3 TIMES PAINT" (assuming that a task named "PAINT" was previously recorded)
+- AGAIN: repeat the last executed command. Does not work well with other types of repetition (RECORD, REPEAT, JOG, ...)
+    - Example:  
+    "FORWARD 100"  
+    "AGAIN" -> will get executed as "FORWARD 100"
 - HOME: Go to home position of the robot
 - REMOVE POSITION [1,2,3, etc.]: Remove position from file
 - TOOL OPEN: Open tool
 - TOOL CLOSE: Close tool
 - TOOL ROTATE: Rotate tool by the step size
-- TOOL ROTATE BACK: Rotate tool in the opposite direction
+- TOOL ROTATE BACK/OPPOSITE: Rotate tool in the opposite direction
 - TOOL [DISTANCE]: Move tool fingers by given distance (currently not available)
 
 - PICK [position name]: Move robot above the given position, open the gripper, move down to the position, close the gripper and move back up
+    - Example: "PICK PART" (assuming that a position named "PART" was previously recorded)
 - PLACE [position name]: Move robot above the given position, move down to the position, open the gripper and move back up
+    - Example: "PLACE PART" (assuming that a position named "PART" was previously recorded)
 - OFFSET [position name] [direction] [distance]: Similar to PLACE, but the target position for placing the object is offset to the given direction by the given distance. Direction can be left/right/forward/backward. Can be used to place objects near a saved position.
+    - Example: "OFFSET PART LEFT 100" will place the gripped object at a position 100 mm left to "PART" (assuming that a position named "PART" was previously recorded)
 - STACK [position name] DISTANCE [distance]: Similar to PLACE, but the target position for placing the object is above the given position by the distance specified as [distance]
+    - Example: "STACK PART DISTANCE 100" will place the gripped object 100 mm above "PART" (assuming that a position named "PART" was previously recorded)
 - HOLD [position name] DISTANCE [distance]: Similar to STACK, but it does not actually place the object at the position, but holds it at a distance above. Basically it moves the robot to a position [distance] above [position name].
+    - Example: "HOLD PART DISTANCE 100" will move the end effector 100 mm above "PART" (assuming that a position named "PART" was previously recorded)
+
+- CIRCLE [direction] [radius]: Moves the end-effector along a circle in the horizontal plane. The circle starts in the FORWARD direction, and its center point is [radius] distance in [direction] direction from the starting point. This command is currently very basic, and most likely will not be developed further due to limitations of voice commanding. [direction] can be either LEFT or RIGHT.
+    - Example: "CIRCLE LEFT 100" will move the end effector on a circular path with a radius of 100 mm, starting forward and with the circle being to the left of the starting position.
 
 
 In step:

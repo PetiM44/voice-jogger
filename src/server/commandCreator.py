@@ -41,6 +41,7 @@ class CommandCreator(object):
             'backwards' : 'BACKWARD',
             'back': 'BACKWARD',
             'mode' : 'MODE',
+            'mod' : 'MODE',
             'distance' : 'DISTANCE',
             'direction' : 'DIRECTION',
             'step' : 'STEP',
@@ -65,6 +66,7 @@ class CommandCreator(object):
             'delete' : 'DELETE',
             'save' : 'SAVE',
             'home' : 'HOME',
+            'homer' : 'HOME',
             'finish' : 'FINISH',
             'record' : 'RECORD',
             'gripper' : 'GRIPPER',
@@ -91,7 +93,8 @@ class CommandCreator(object):
             'again' : 'AGAIN',
             'jog' : 'JOG',
             'joke' : 'JOG',
-            'joerg' : 'JOG'
+            'joerg' : 'JOG',
+            'circle': 'CIRCLE'
         }
 
 
@@ -238,7 +241,8 @@ class CommandCreator(object):
             else:
                 print('Invalid ' + command + ' command. Correct form: TASK/DO/PLAY [task name]')
                 return None
-            
+
+        ### Added by Peter ###     
         #___________________REPEAT TASKNAME______________________
         elif command == 'REPEAT':
             if len(words) < 3:
@@ -269,6 +273,7 @@ class CommandCreator(object):
                     return None
                 return ['REPEAT', times, 'TIMES', task_name]
 
+        ### Added by Peter ###
         #___________________JOG TASKNAME______________________    
         elif command == 'JOG':
             if len(words) < 4:
@@ -302,7 +307,8 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. Correct form: JOG [direction] [# of times] TIMES [task name]')
                     return None
                 return ['JOG', direction_word, times, 'TIMES', task_name]
-            
+
+        ### Added by Peter ###    
         #___________________REPEAT LAST COMMAND________________________
         elif command == 'AGAIN':
             return ['AGAIN']
@@ -340,15 +346,18 @@ class CommandCreator(object):
             position_name = self.get_name(words)
             return ["POSITION", position_name]
         
+        ### Added by Peter ###
         #___________________PICK, PLACE, STACK_________________________
         elif command == "PICK":
             position_name = self.get_name(words)
             return ["PICK", position_name]
         
+        ### Added by Peter ###
         elif command == "PLACE":
             position_name = self.get_name(words)
             return ["PLACE", position_name]
         
+        ### Added by Peter ###
         elif command == "OFFSET":
             if len(words) < 3:
                 return None
@@ -376,7 +385,8 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. No proper distance value found. Correct form: OFFSET [position] [direction] [distance]')
                     return None
                 return ['OFFSET', position_name, direction_command, distance]
-            
+
+        ### Added by Peter ###    
         elif command == "PUSH":
             if len(words) < 3:
                 return None
@@ -405,6 +415,7 @@ class CommandCreator(object):
                     return None
                 return ['PUSH', position_name, direction_command, distance]
         
+        ### Added by Peter ###
         elif command == "STACK":
             if len(words) < 3:
                 return None
@@ -432,7 +443,8 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. No proper distance value found. Correct form: STACK [position name] DISTANCE [distance]')
                     return None
                 return ['STACK', position_name, distance]
-            
+
+        ### Added by Peter ###    
         elif command == "HOLD":
             if len(words) < 3:
                 return None
@@ -460,6 +472,23 @@ class CommandCreator(object):
                     print('Invalid ' + command + ' command. No proper distance value found. Correct form: HOLD [position name] DISTANCE [distance]')
                     return None
                 return ['HOLD', position_name, distance]
+
+        ### Added by Peter ###
+        #___________________MOVE IN CIRCLE___________________________
+        elif command == "CIRCLE":
+            if len(words) < 2:
+                print('Invalid ' + command + ' command. Correct form: CIRCLE [DIRECTION] [radius]')
+                return None
+            dir = words.pop(0).upper()
+            if dir not in ['LEFT', 'RIGHT']:
+                print('Invalid ' + command + ' command. Direction can be either LEFT or RIGHT')
+                return None
+            radius = self.get_number(words[0:])
+            if radius == None:
+                print('Invalid ' + command + ' command. Radius not found')
+                return None
+            return ['CIRCLE', dir, radius]
+            
 
 
         elif type(command) == str:
